@@ -339,8 +339,8 @@ function showMenuBar(window) {
 
 function openMainWindow() {
   mainWindow = new BrowserWindow({
-    width: 920,
-    height:700,
+    width: conf.get('width') || 920,
+    height: conf.get('height') || 700,
     preload: __dirname + '/webframe.js',
     icon: __dirname + 'resources/icon.iconset/icon_512x512.png',
     title: 'IRCCloud'
@@ -366,6 +366,27 @@ function openMainWindow() {
   if (conf.get('menu-bar') === false) {
     hideMenuBar(mainWindow);
   }
+
+  if (conf.get('maximize')) {
+    mainWindow.maximize();
+  }
+
+  // Handle sizing events so we can persist them.
+  mainWindow.on('maximize', function (event) {
+    conf.set('maximize', true);
+  });
+
+  mainWindow.on('unmaximize', function (event) {
+    conf.set('maximize', false);
+  });
+
+  mainWindow.on('resize', function (event) {
+    var size = this.getSize();
+    conf.set({
+      width: size[0],
+      height: size[1]
+    });
+  });
 }
 
 App.on('activate-with-no-open-windows', function () {
